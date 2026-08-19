@@ -1,0 +1,65 @@
+name: Bug report
+description: Something in the add-in itself misbehaved.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For problems with the add-in. If a generated model has a defect in it, that's
+        probably working as intended, so check the report first.
+
+  - type: input
+    id: revit-version
+    attributes:
+      label: Revit version
+      placeholder: "e.g. 2026.4"
+    validations:
+      required: true
+
+  - type: input
+    id: addin-version
+    attributes:
+      label: Add-in version
+      description: Shown at the top of the report.
+      placeholder: "e.g. 0.1.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: report
+    attributes:
+      label: The run report
+      description: |
+        This is the useful bit. Open **View Last Report** and paste it here, or attach the
+        exported JSON. The Fallbacks and Scenarios sections usually explain the whole thing.
+      render: text
+    validations:
+      required: false
+
+  - type: input
+    id: seed
+    attributes:
+      label: Seed and severity
+      description: Lets me reproduce your exact run.
+      placeholder: "e.g. seed 42, Medium"
+    validations:
+      required: false
+
+  - type: textarea
+    id: document
+    attributes:
+      label: What document were you running in?
+      description: |
+        Template it came from, whether it's workshared, roughly what was already in it.
+        A lot of behaviour depends on what families the document already has loaded.
+    validations:
+      required: false

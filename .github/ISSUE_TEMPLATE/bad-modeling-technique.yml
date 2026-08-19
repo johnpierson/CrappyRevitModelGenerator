@@ -1,0 +1,76 @@
+name: Suggest a bad modeling technique
+description: Seen a modeling habit worth reproducing on purpose? Tell me about it.
+title: "[Technique] "
+labels: ["technique"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for this. The whole point of the generator is to reproduce the stuff that
+        actually shows up in real projects, and I can only invent so much of that myself.
+
+        You do not need to know the Revit API or fill in every box. A sentence describing
+        what you have seen is genuinely enough.
+
+  - type: textarea
+    id: technique
+    attributes:
+      label: What's the bad habit?
+      description: What does it look like in a model someone hands you?
+      placeholder: |
+        e.g. "Dimensions driven off the wrong reference, so they update to the wrong number
+        when anything moves."
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-bad
+    attributes:
+      label: Why is it a problem?
+      description: What does it break, or who does it hurt downstream?
+      placeholder: |
+        e.g. "Looks fine on the sheet until a wall moves, then the dimension silently lies."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Roughly what area?
+      description: Only if it's obvious. Pick "Not sure" happily.
+      options:
+        - Not sure
+        - Naming and identity
+        - Datums and layout (levels, grids, walls)
+        - Geometry and coordination
+        - Views, sheets and documentation
+        - Families, types and materials
+        - Rooms and spatial data
+        - Metadata and parameters
+        - Something that triggers Revit warnings
+    validations:
+      required: false
+
+  - type: textarea
+    id: how-to-reproduce
+    attributes:
+      label: How would you build it deliberately?
+      description: |
+        Optional. If you already know the steps (or the API calls), it saves me working it out.
+      placeholder: |
+        e.g. "Place the dimension, then use Edit Witness Lines to move one reference to a
+        different wall face."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: valid
+    attributes:
+      label: One constraint
+      description: |
+        The generator makes models that are **bad but valid**. It never corrupts a document
+        or hands Revit illegal geometry. If your suggestion needs a genuinely broken file,
+        it's probably out of scope, but suggest it anyway and we'll talk.
+      options:
+        - label: I think this can be done without actually corrupting the model
+          required: false
