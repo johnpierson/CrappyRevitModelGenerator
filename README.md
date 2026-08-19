@@ -257,7 +257,7 @@ Parameters: `report` (required output path), `settings`, `seed`, `severity`, `sc
 
 ## License
 
-TBD by the owner.
+GPL-3.0-or-later. See [`LICENSE`](LICENSE).
 
 ## Credits
 
