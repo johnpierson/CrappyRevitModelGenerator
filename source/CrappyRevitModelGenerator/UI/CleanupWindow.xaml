@@ -1,0 +1,80 @@
+<Window x:Class="CrappyRevitModelGenerator.UI.CleanupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Crappy Revit Model Generator"
+        Width="780" Height="440" MinWidth="620" MinHeight="320"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="CanResize"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+    <Window.Resources>
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="MinWidth" Value="110"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+        <Style x:Key="SmallButton" TargetType="Button">
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="Padding" Value="10,2"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock x:Name="HeaderText" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            <TextBlock Text="Tick the runs to remove. Deleting a run removes the elements it created and its stored run record; the whole cleanup is one Undo step per run."
+                       Foreground="Gray" TextWrapping="Wrap" Margin="0,2,0,0"/>
+        </StackPanel>
+
+        <ListView x:Name="RunsList" Grid.Row="1" SelectionMode="Multiple">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="34">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Run id" DisplayMemberBinding="{Binding RunId}" Width="210"/>
+                    <GridViewColumn Header="Seed" DisplayMemberBinding="{Binding Seed}" Width="70"/>
+                    <GridViewColumn Header="Severity" DisplayMemberBinding="{Binding Severity}" Width="70"/>
+                    <GridViewColumn Header="Created (local)" DisplayMemberBinding="{Binding CreatedLocal}" Width="130"/>
+                    <GridViewColumn Header="Elements" DisplayMemberBinding="{Binding Elements}" Width="70"/>
+                    <GridViewColumn Header="Generator" DisplayMemberBinding="{Binding GeneratorVersion}" Width="80"/>
+                    <GridViewColumn Header="Revit" DisplayMemberBinding="{Binding RevitVersion}" Width="60"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+            <Button Content="Select all" Click="OnSelectAll" Style="{StaticResource SmallButton}"/>
+            <Button Content="Select none" Click="OnSelectNone" Style="{StaticResource SmallButton}"/>
+            <TextBlock x:Name="SelectionText" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="Gray"/>
+        </StackPanel>
+
+        <Border Grid.Row="3" Background="#FFFFF4CE" BorderBrush="#FFE0B84A" BorderThickness="1" CornerRadius="3" Padding="8,6" Margin="0,8,0,8">
+            <TextBlock Text="Only elements recorded by the generator are deleted; elements that user content depends on are kept and reported."
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="DeleteButton" Content="Delete selected…" IsDefault="True" Click="OnDelete" Style="{StaticResource ActionButton}"/>
+            <Button Content="Cancel" IsCancel="True" Style="{StaticResource ActionButton}"/>
+        </StackPanel>
+    </Grid>
+</Window>

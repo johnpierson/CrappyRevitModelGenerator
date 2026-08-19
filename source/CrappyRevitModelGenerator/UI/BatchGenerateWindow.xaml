@@ -1,0 +1,121 @@
+<Window x:Class="CrappyRevitModelGenerator.UI.BatchGenerateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Crappy Revit Model Generator — Batch Generate"
+        Width="640" Height="520" MinWidth="560" MinHeight="440"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="CanResize"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+    <Window.Resources>
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Padding" Value="10,6,10,8"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="3,2"/>
+            <Setter Property="Margin" Value="0,3,0,3"/>
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"
+                       Text="Generate several models in one pass, each a fresh project from a template."/>
+            <TextBlock Foreground="Gray" TextWrapping="Wrap" Margin="0,2,0,0"
+                       Text="Each model is created, generated and saved without disturbing any document you already have open. This can take a while for a large batch."/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,6,0">
+            <StackPanel>
+                <GroupBox Header="Source and destination">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Template (.rte)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Grid.Column="1" x:Name="TemplateBox" TextChanged="OnInputChanged"/>
+                            <Button Grid.Column="2" Content="Browse…" Margin="8,0,0,0" Padding="10,2" Click="OnBrowseTemplate"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Output folder" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Grid.Column="1" x:Name="OutputFolderBox" TextChanged="OnInputChanged"/>
+                            <Button Grid.Column="2" Content="Browse…" Margin="8,0,0,0" Padding="10,2" Click="OnBrowseOutputFolder"/>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Hint}" Text="Created if it does not exist. Each model, its report and a combined manifest are written here."/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Batch">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="0" Text="Model count" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Grid.Column="1" x:Name="CountBox" TextChanged="OnInputChanged"/>
+                            <TextBlock Grid.Column="3" Text="Base seed" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                <TextBox x:Name="BaseSeedBox" Width="100" TextChanged="OnInputChanged"/>
+                                <Button Content="New" Margin="6,0,0,0" Padding="8,2" Click="OnNewSeed"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock x:Name="CountHint" Style="{StaticResource Hint}"/>
+
+                        <TextBlock Text="Severity" Margin="0,8,0,2" FontWeight="SemiBold"/>
+                        <ComboBox x:Name="SeverityModeBox" HorizontalAlignment="Left" MinWidth="220" SelectionChanged="OnInputChanged"/>
+                        <TextBlock Style="{StaticResource Hint}" Text="Model 1, 2, 3, … each get their own seed (base + index) and their own generation report, so no two models in a batch are identical even at the same severity."/>
+
+                        <CheckBox x:Name="WarningsBox" Margin="0,10,0,0" Content="Include the high-risk 'Generate warnings' scenario"
+                                  Checked="OnInputChanged" Unchecked="OnInputChanged"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" BorderBrush="#FFCCCCCC" BorderThickness="1" Background="#FFF7F7F7" Padding="8,6" Margin="0,4,0,8">
+            <TextBlock x:Name="MessagesText" TextWrapping="Wrap"/>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="StartButton" Content="Start batch" IsDefault="True" Click="OnStart" Style="{StaticResource ActionButton}"/>
+            <Button Content="Cancel" IsCancel="True" Style="{StaticResource ActionButton}"/>
+        </StackPanel>
+    </Grid>
+</Window>

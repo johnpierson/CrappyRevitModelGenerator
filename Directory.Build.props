@@ -1,0 +1,15 @@
+<Project>
+
+    <!--
+        The product version, in one place, so every build (including a plain `dotnet build`
+        a developer runs) stamps the same number into the assembly, the report, and the
+        Extensible Storage records that tag generated elements.
+    -->
+    <PropertyGroup>
+        <Version>0.1.0</Version>
+        <Company>Design Tech Unraveled</Company>
+        <Product>Crappy Revit Model Generator</Product>
+        <Copyright>Copyright © 2026 Design Tech Unraveled</Copyright>
+    </PropertyGroup>
+
+</Project>

@@ -1,0 +1,29 @@
+#IDE folders
+*.idea/
+*.vs/
+*.vscode/
+
+#Project-specific folders
+*obj/
+*bin/
+*temp/
+
+#Deprecated Nuget folder
+/packages/
+
+#Nuke output folder
+/output/
+
+#User-specific files
+*.user
+
+#Revit's own backups and journals. Saving any fixture .rvt/.rfa/.rte leaves numbered copies
+#beside it, and Revit files do not delta-compress -- each one committed is a full extra copy.
+*.[0-9][0-9][0-9][0-9].rvt
+*.[0-9][0-9][0-9][0-9].rfa
+*.[0-9][0-9][0-9][0-9].rte
+*Backup/
+journal.*.txt
+
+#Test results
+TestResults/

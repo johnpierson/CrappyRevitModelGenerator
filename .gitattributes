@@ -1,0 +1,29 @@
+# Text files are normalised to LF in the repository and checked out with the platform's own
+# endings. Without this, a repo edited from several editors on Windows accumulates mixed
+# endings and diffs that are entirely whitespace.
+* text=auto
+
+*.cs      text diff=csharp
+*.csproj  text
+*.sln     text eol=crlf
+*.xaml    text
+*.xml     text
+*.addin   text
+*.md      text
+*.json    text
+*.yml     text
+*.ps1     text eol=crlf
+*.sh      text eol=lf
+
+# Revit files, fonts, images and archives are binary. Git will not try to merge them or
+# report line changes in them.
+*.rvt   binary
+*.rfa   binary
+*.rte   binary
+*.ttf   binary
+*.otf   binary
+*.png   binary
+*.ico   binary
+*.zip   binary
+*.dll   binary
+*.msi   binary

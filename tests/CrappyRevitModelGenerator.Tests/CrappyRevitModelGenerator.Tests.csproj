@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!--
+            Both runtimes the add-in ships on (Revit 2025/2026 = .NET 8, Revit 2027 = .NET 10),
+            so a defect that only appears under one of them cannot hide. Deliberately NOT
+            -windows and deliberately not per-Revit-version: this project tests the Revit-free
+            core layer, which is the only logic that can be tested without a running Revit.
+        -->
+        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <IsPackable>false</IsPackable>
+        <PlatformTarget>x64</PlatformTarget>
+        <RootNamespace>CrappyRevitModelGenerator.Tests</RootNamespace>
+
+        <!--
+            The add-in's own configurations are per Revit version (Debug R25 … Release R27).
+            This project has no Revit dependency, so it maps every one of them onto plain
+            Debug/Release rather than duplicating the matrix.
+        -->
+        <Configurations>Debug;Release</Configurations>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+        <PackageReference Include="xunit" Version="2.9.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    </ItemGroup>
+
+    <!--
+        Linked rather than referenced. A ProjectReference to the add-in would drag in the
+        Revit API packages and force this project into the per-version configuration matrix.
+        Compiling the source in directly also makes its internal types visible to the tests.
+
+        The rule for what belongs here: everything under source/.../Core/ and nothing else.
+        Core files may not reference Autodesk.Revit.* — if a change there starts requiring
+        Revit types, that is the signal to move the logic to Revit/, not to add a reference.
+    -->
+    <ItemGroup>
+        <Compile Include="..\..\source\CrappyRevitModelGenerator\Core\**\*.cs" Link="Linked\Core\%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Crappy Revit Model Generator</Name>
+    <Assembly>CrappyRevitModelGenerator\CrappyRevitModelGenerator.dll</Assembly>
+    <FullClassName>CrappyRevitModelGenerator.App</FullClassName>
+    <ClientId>C728349E-5B0C-4C16-AA50-4A026A3A0D91</ClientId>
+    <VendorId>Design Tech Unraveled</VendorId>
+    <VendorEmail>https://github.com/johnpierson/CrappyRevitModelGenerator/issues</VendorEmail>
+    <VendorDescription>Design Tech Unraveled. Generates a small, intentionally low-quality Revit model for training, QA demos and audit-tool testing.</VendorDescription>
+  </AddIn>
+  <!--
+      Manual trigger for headless automation (Add-Ins > External Tools > CRMG Automation);
+      reads the same CRMG_AUTOMATION environment variable that App.OnStartup checks
+      automatically on every startup via the Idling event. tools/revit-smoke.ps1 sets that
+      variable and never invokes this command directly: Revit's journal syntax for triggering
+      an external command by AddInId turned out not to be recognised by the interpreter at all
+      (verified against Revit 2026), so automation does not depend on it. See
+      docs/INTEGRATION-TESTS.md.
+  -->
+  <AddIn Type="Command">
+    <Name>CRMG Automation</Name>
+    <Text>CRMG Automation</Text>
+    <Description>Headless generation for automated tests. Reads parameters from journal data or the CRMG_AUTOMATION environment variable.</Description>
+    <Assembly>CrappyRevitModelGenerator\CrappyRevitModelGenerator.dll</Assembly>
+    <FullClassName>CrappyRevitModelGenerator.Commands.AutomationCommand</FullClassName>
+    <AvailabilityClassName>CrappyRevitModelGenerator.Commands.AlwaysAvailable</AvailabilityClassName>
+    <AddInId>F8190B3F-A416-4E1A-931A-10C0401F9E45</AddInId>
+    <VendorId>Design Tech Unraveled</VendorId>
+    <VendorEmail>https://github.com/johnpierson/CrappyRevitModelGenerator/issues</VendorEmail>
+    <VendorDescription>Design Tech Unraveled</VendorDescription>
+  </AddIn>
+</RevitAddIns>

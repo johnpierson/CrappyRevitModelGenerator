@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-windows7.0": {
+      "Nice3point.Revit.Api.RevitAPI": {
+        "type": "Direct",
+        "requested": "[2027.*, )",
+        "resolved": "2027.2.0",
+        "contentHash": "TZX0givimWzM0Cz3IvtQNXiSpkWXXp21LWo5sPDoF1qkS6WYIXH2vEn9D+mA0JFNWAib0AKfDiINj8afaDXTOg=="
+      },
+      "Nice3point.Revit.Api.RevitAPIUI": {
+        "type": "Direct",
+        "requested": "[2027.*, )",
+        "resolved": "2027.2.0",
+        "contentHash": "2LqIkKAh772P1IZYHnxJFqkSWgbl1XR+xnjvwa9uNTP7v51ua4BiBsqn5hxTuCvnEuWlHyeG960nKS7ZwaFiNw=="
+      },
+      "Nice3point.Revit.Build.Tasks": {
+        "type": "Direct",
+        "requested": "[2.0.2, )",
+        "resolved": "2.0.2",
+        "contentHash": "ordUQs9JHk/oZ+HUhBP6GnD6WRVUH064EEI9kpPJnT7EoqYSXYnS/yCBdDb37mooRsJMmxDxP0M/B69hgJf2sA=="
+      }
+    }
+  }
+}

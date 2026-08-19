@@ -1,0 +1,87 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <UseWPF>true</UseWPF>
+        <LangVersion>latest</LangVersion>
+        <PlatformTarget>x64</PlatformTarget>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <RootNamespace>CrappyRevitModelGenerator</RootNamespace>
+        <AssemblyName>CrappyRevitModelGenerator</AssemblyName>
+        <Configurations>Debug R25;Debug R26;Debug R27</Configurations>
+        <Configurations>$(Configurations);Release R25;Release R26;Release R27</Configurations>
+        <!-- Revit API is not annotated, so nullable warnings are noise here; the core layer is
+             defensive by hand instead. Warnings are otherwise errors so a build that "works" is
+             not hiding an obsolete-API call that the next Revit release removes. -->
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsAsErrors>CS0612;CS0618</WarningsAsErrors>
+    </PropertyGroup>
+
+    <!--
+        Revit 2025 and up only. Revit 2025 and 2026 host .NET 8; Revit 2027 moved to .NET 10.
+        One configuration per Revit year, so the API package major version, the target
+        framework, and the publish folder all follow from a single RevitVersion value.
+    -->
+    <PropertyGroup Condition="$(Configuration.Contains('R25'))">
+        <RevitVersion>2025</RevitVersion>
+        <TargetFramework>net8.0-windows</TargetFramework>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(Configuration.Contains('R26'))">
+        <RevitVersion>2026</RevitVersion>
+        <TargetFramework>net8.0-windows</TargetFramework>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(Configuration.Contains('R27'))">
+        <RevitVersion>2027</RevitVersion>
+        <TargetFramework>net10.0-windows</TargetFramework>
+    </PropertyGroup>
+
+    <!--
+        A plain `dotnet build` (Configuration=Debug/Release) still has to mean something.
+        Default it to the current shipping release rather than failing with an empty
+        TargetFramework, so a fresh clone builds without knowing the configuration matrix.
+    -->
+    <PropertyGroup Condition="'$(RevitVersion)' == ''">
+        <RevitVersion>2026</RevitVersion>
+        <TargetFramework>net8.0-windows</TargetFramework>
+    </PropertyGroup>
+
+    <!--
+        Debug builds copy the add-in into %AppData%\Autodesk\Revit\Addins\<year>\ so pressing
+        F5 (or `dotnet build`) is the install step. Release builds only produce the publish
+        folder under bin\, which is what a packaging step consumes; they never touch the
+        user's Revit installation.
+    -->
+    <PropertyGroup>
+        <PublishAddinFiles Condition="$(Configuration.StartsWith('Debug'))">true</PublishAddinFiles>
+        <StartAction>Program</StartAction>
+        <StartProgram>C:\Program Files\Autodesk\Revit $(RevitVersion)\Revit.exe</StartProgram>
+        <StartArguments>/language ENG</StartArguments>
+    </PropertyGroup>
+
+    <!--
+        One lock file per Revit version. NuGet keys lock files by target framework, and R25 and
+        R26 share net8.0-windows with different Revit API package versions behind them — they
+        would overwrite each other's entries on every restore.
+    -->
+    <PropertyGroup>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <NuGetLockFilePath>packages.R$(RevitVersion).lock.json</NuGetLockFilePath>
+    </PropertyGroup>
+
+    <!--
+        The Revit API packages are parameterized by RevitVersion: their major version IS the
+        Revit year. They are pinned to an exact patch by the lock file rather than by this
+        range. Nothing else is referenced: the generator's own report is its logging channel,
+        JSON comes from System.Text.Json in the box, and the WPF dialogs are plain code-behind.
+    -->
+    <ItemGroup>
+        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="2.0.2" />
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" />
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\*.png" />
+    </ItemGroup>
+
+</Project>
