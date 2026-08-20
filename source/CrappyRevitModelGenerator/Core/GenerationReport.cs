@@ -265,7 +265,7 @@ namespace CrappyRevitModelGenerator.Core
             {
                 sb.AppendLine("Settings");
                 sb.AppendLine("--------");
-                sb.AppendLine($"Severity {Settings.Severity}, {Settings.LevelCount} level(s), footprint {Settings.FootprintWidthMm:0} x {Settings.FootprintDepthMm:0} mm, level height {Settings.LevelHeightMm:0} mm, max elements {Settings.MaxElements}");
+                sb.AppendLine($"Severity {Settings.Severity}, content scale {Settings.ContentScale:0.##}x, {Settings.LevelCount} level(s), footprint {Settings.FootprintWidthMm:0} x {Settings.FootprintDepthMm:0} mm, level height {Settings.LevelHeightMm:0} mm, max elements {Settings.MaxElements}");
                 sb.AppendLine("Scenarios: " + string.Join(", ", Settings.ResolveScenarioIds()));
                 sb.AppendLine();
             }

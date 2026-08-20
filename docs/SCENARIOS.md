@@ -31,6 +31,12 @@ Revit-side class it is described from the plan and the catalog and marked *(Revi
 - Names go through `NameSanitizer`; if Revit rejects a name (already taken), the next candidate
   is the same bad name with an equally bad suffix (` 2`, ` (2)`, ` - Copy`, `_2`, …), never a
   clean fallback.
+- The **content scale** setting (0.5–20, default 1) multiplies the content quantities quoted in
+  each scenario's *Severity* line — rooms, sections, elevations, 3D and drafting views, sheets,
+  empty sheets, text notes, duplicate types and materials. Defect counts, fractions and
+  distances are not scaled, and a quantity that is 0 at a severity stays 0, so a bigger model is
+  the same kind of bad model. Per-category caps in `GenerationLimits` still apply, and rooms are
+  additionally limited by the cells the layout provides.
 
 ### Expected warnings and how they are handled
 

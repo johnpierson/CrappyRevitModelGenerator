@@ -111,12 +111,13 @@ report and into the run record so a run can be reproduced.
 | Run setup | Seed | fresh random | Any `int`; the dialog spinner shows 0–999 999. Shown in the report |
 | | Severity | Medium | Low / Medium / High; every quantity comes from `SeverityProfile` |
 | | Dry run | off | Plans, estimates and lists the defects that *would* be planted; opens no transaction |
-| Model content | Levels | 3 | 1–6 |
-| | Footprint width × depth | 18 000 × 12 000 mm | 6 000–40 000 mm each; a corridor layout needs depth ≥ 9 000 |
+| Model content | Levels | 3 | 1–20 |
+| | Footprint width × depth | 18 000 × 12 000 mm | 6 000–120 000 mm each; a corridor layout needs depth ≥ 9 000 |
 | | Level height | 3 500 mm | 2 400–6 000 |
+| | Content scale | 1× | 0.5–20×; multiplies rooms, views, sheets, text notes, duplicate types and materials without changing how bad they are |
 | | Create floors / doors & windows / furniture / rooms | on | Toggles the content the planners emit |
 | Scenarios | Enabled scenario ids | all default-on scenarios | Baseline always runs. *Generate warnings* is off by default. See `docs/SCENARIOS.md` |
-| Safety | Maximum elements | 400 | 20–1 500; the estimate must fit under it |
+| Safety | Maximum elements | 400 | 20–25 000; the estimate must fit under it. The dialog keeps it ahead of the estimate until you type a value yourself |
 | | Confirm active document | must be ticked | Not required for a dry run |
 | | Allow workshared documents | off | Required when the document is workshared |
 | | Suppress all warning dialogs | off | Off: only the curated expected list is dismissed. On: every warning is dismissed. Either way all are recorded |
@@ -180,17 +181,23 @@ transaction opens.
 
 | Limit | Min | Default | Max / hard cap |
 |---|---|---|---|
-| Levels | 1 | 3 | 6 |
-| Footprint width, depth (mm) | 6 000 | 18 000 × 12 000 | 40 000 |
+| Levels | 1 | 3 | 20 |
+| Footprint width, depth (mm) | 6 000 | 18 000 × 12 000 | 120 000 |
 | Level height (mm) | 2 400 | 3 500 | 6 000 |
-| Walls | — | by severity and footprint | 120 (planner cap) |
-| Rooms | — | 4–10 by severity | 24 |
-| Views | — | by severity | 40 |
-| Sheets | — | 2–4 by severity | 10 |
-| Materials | — | 3–7 by severity | 12 |
-| Duplicate types | — | by severity | 12 |
-| Total generated elements | 20 | 400 | 1 500 |
+| Content scale (×) | 0.5 | 1 | 20 |
+| Walls | — | by severity and footprint | 1 200 (planner cap) |
+| Rooms | — | 4–10 by severity × scale | 400 |
+| Views | — | by severity × scale | 400 |
+| Sheets | — | 2–4 by severity × scale | 100 |
+| Materials | — | 3–7 by severity × scale | 60 |
+| Duplicate types | — | by severity × scale | 60 |
+| Total generated elements | 20 | 400 | 25 000 |
 | Seed (dialog range) | 0 | random | 999 999 |
+
+A run's size and its badness are separate dials: levels, footprint and level height decide the
+building, **content scale** multiplies how much content hangs off it (rooms, views, sheets, text
+notes, duplicate types, materials), and severity decides only how bad all of it is. Rooms still
+need cells to sit in, so a large room count needs levels or footprint to match.
 
 ## Supported Revit versions
 

@@ -19,7 +19,21 @@ namespace CrappyRevitModelGenerator.Core
             }
         }
 
+        /// <summary>
+        /// The profile a run actually uses: the severity's profile with the settings' content
+        /// scale applied. Planners and scenarios go through this so "how bad" (severity) and
+        /// "how big" (scale) stay independent of each other.
+        /// </summary>
+        public static SeverityProfile For(GenerationSettings settings)
+        {
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            return For(settings.Severity).WithContentScale(settings.ContentScale);
+        }
+
         public GenerationSeverity Severity { get; private set; }
+
+        /// <summary>The content scale already applied to this profile; 1.0 for the three base profiles.</summary>
+        public double ContentScale { get; private set; } = 1.0;
 
         // ---- Layout ----------------------------------------------------------------------
         public double CellWidthMm { get; private set; }
@@ -161,6 +175,53 @@ namespace CrappyRevitModelGenerator.Core
 
         private SeverityProfile()
         {
+        }
+
+        /// <summary>
+        /// A copy with every content quantity multiplied by <paramref name="scale"/>: rooms,
+        /// views, sheets, text notes, duplicate types and materials. Defect counts, fractions
+        /// and distances are left alone — a bigger model is not a differently broken one — and
+        /// the per-category caps in <see cref="GenerationLimits"/> still apply downstream.
+        /// A scale equal to the one already applied returns this instance unchanged.
+        /// </summary>
+        public SeverityProfile WithContentScale(double scale)
+        {
+            scale = GenerationLimits.ClampContentScale(scale);
+            if (Math.Abs(scale - ContentScale) < 1e-9) return this;
+
+            var p = (SeverityProfile)MemberwiseClone();
+            p.ContentScale = scale;
+
+            // Rooms
+            p.RoomsMin = Grow(RoomsMin, scale);
+            p.RoomsMax = Grow(RoomsMax, scale);
+            p.UnplacedRooms = Grow(UnplacedRooms, scale);
+            p.SeparationLines = Grow(SeparationLines, scale);
+
+            // Documentation
+            p.Sections = Grow(Sections, scale);
+            p.Elevations = Grow(Elevations, scale);
+            p.ThreeDViews = Grow(ThreeDViews, scale);
+            p.DraftingViews = Grow(DraftingViews, scale);
+            p.Sheets = Grow(Sheets, scale);
+            p.EmptySheets = Grow(EmptySheets, scale);
+            p.TextNotes = Grow(TextNotes, scale);
+
+            // Types and materials
+            p.DuplicateWallTypes = Grow(DuplicateWallTypes, scale);
+            p.DuplicateFloorTypes = Grow(DuplicateFloorTypes, scale);
+            p.DuplicateFamilyTypes = Grow(DuplicateFamilyTypes, scale);
+            p.Materials = Grow(Materials, scale);
+            p.NearDuplicateMaterials = Grow(NearDuplicateMaterials, scale);
+
+            return p;
+        }
+
+        /// <summary>Scale a count, keeping zero at zero (a defect switched off stays off) and never dropping below one.</summary>
+        private static int Grow(int value, double scale)
+        {
+            if (value <= 0) return value;
+            return Math.Max(1, (int)Math.Round(value * scale, MidpointRounding.AwayFromZero));
         }
 
         /// <summary>Scale an integer count by severity ordinal (0, 1, 2) with a floor of <paramref name="minimum"/>.</summary>

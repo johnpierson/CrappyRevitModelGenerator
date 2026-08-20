@@ -32,6 +32,14 @@ namespace CrappyRevitModelGenerator.Core
 
         public double LevelHeightMm { get; set; } = GenerationLimits.DefaultLevelHeightMm;
 
+        /// <summary>
+        /// Multiplies the per-severity content quantities — rooms, views, sheets, text notes,
+        /// duplicate types and materials — so a run can produce a large model without making it
+        /// a worse one. Levels and footprint decide the building; this decides how much content
+        /// is hung off it. 1.0 is the historical behaviour.
+        /// </summary>
+        public double ContentScale { get; set; } = GenerationLimits.DefaultContentScale;
+
         public bool CreateFloors { get; set; } = true;
 
         public bool CreateDoorsAndWindows { get; set; } = true;
@@ -117,6 +125,9 @@ namespace CrappyRevitModelGenerator.Core
             if (double.IsNaN(LevelHeightMm) || LevelHeightMm < GenerationLimits.MinLevelHeightMm || LevelHeightMm > GenerationLimits.MaxLevelHeightMm)
                 result.AddError($"Level height must be between {GenerationLimits.MinLevelHeightMm:0} and {GenerationLimits.MaxLevelHeightMm:0} mm (was {LevelHeightMm:0}).");
 
+            if (double.IsNaN(ContentScale) || ContentScale < GenerationLimits.MinContentScale || ContentScale > GenerationLimits.MaxContentScale)
+                result.AddError($"Content scale must be between {GenerationLimits.MinContentScale:0.##} and {GenerationLimits.MaxContentScale:0.##} (was {ContentScale:0.##}).");
+
             if (MaxElements < GenerationLimits.MinMaxElements)
                 result.AddError($"Maximum element count must be at least {GenerationLimits.MinMaxElements} (was {MaxElements}).");
 
@@ -150,7 +161,7 @@ namespace CrappyRevitModelGenerator.Core
             {
                 var estimate = ElementCountEstimator.Estimate(this);
                 if (estimate.Total > MaxElements)
-                    result.AddError($"The estimated element count ({estimate.Total}) exceeds the maximum ({MaxElements}). Reduce levels, footprint or scenarios, or raise the maximum.");
+                    result.AddError($"The estimated element count ({estimate.Total}) exceeds the maximum ({MaxElements}). Reduce levels, footprint, content scale or scenarios, or raise the maximum.");
                 else if (estimate.Total > MaxElements * 0.8)
                     result.AddWarning($"The estimated element count ({estimate.Total}) is close to the maximum ({MaxElements}).");
             }

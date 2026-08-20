@@ -33,7 +33,7 @@ namespace CrappyRevitModelGenerator.Core.Planning
             if (random == null) throw new ArgumentNullException(nameof(random));
             tolerances ??= GeometryTolerances.Default;
 
-            var profile = SeverityProfile.For(settings.Severity);
+            var profile = SeverityProfile.For(settings);
             var plan = new BaselinePlan
             {
                 Footprint = new Rect2D(-settings.FootprintWidthMm / 2, -settings.FootprintDepthMm / 2,

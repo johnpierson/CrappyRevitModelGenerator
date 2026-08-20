@@ -95,6 +95,22 @@ namespace CrappyRevitModelGenerator.Core
             "Roof (maybe)",
             "LEVEL 03",
             "lvl 4",
+            "Level 5 - Copy",
+            "L06",
+            "level 7",
+            "LVL 8 (new)",
+            "Level 9a",
+            "L10 - do not use",
+            "Level 11 old",
+            "LEVEL12",
+            "lvl.13",
+            "Level 14 (coord)",
+            "L-15",
+            "Level16 ",
+            "LVL 17 rev",
+            "Level 18 - temp",
+            "l19",
+            "Upper Roof (maybe)",
         };
 
         /// <summary>Alternates offered when the primary bad name is already taken in the document.</summary>

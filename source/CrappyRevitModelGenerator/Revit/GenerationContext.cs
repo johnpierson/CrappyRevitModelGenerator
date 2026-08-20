@@ -32,7 +32,7 @@ namespace CrappyRevitModelGenerator.Revit
             RevitVersion = revitVersion ?? "unknown";
 
             Random = new SeededRandom(settings.Seed);
-            Profile = SeverityProfile.For(settings.Severity);
+            Profile = SeverityProfile.For(settings);
             Types = new TypeResolver(document, report);
             Factory = new ElementFactory(this);
             EnabledScenarioIds = new HashSet<string>(settings.ResolveScenarioIds(), StringComparer.OrdinalIgnoreCase);

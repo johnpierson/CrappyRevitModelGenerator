@@ -24,7 +24,8 @@ namespace CrappyRevitModelGenerator.Tests
             int levels = GenerationLimits.DefaultLevels,
             double width = GenerationLimits.DefaultFootprintWidthMm,
             double depth = GenerationLimits.DefaultFootprintDepthMm,
-            double levelHeight = GenerationLimits.DefaultLevelHeightMm)
+            double levelHeight = GenerationLimits.DefaultLevelHeightMm,
+            double contentScale = GenerationLimits.DefaultContentScale)
         {
             return new GenerationSettings
             {
@@ -34,6 +35,7 @@ namespace CrappyRevitModelGenerator.Tests
                 FootprintWidthMm = width,
                 FootprintDepthMm = depth,
                 LevelHeightMm = levelHeight,
+                ContentScale = contentScale,
             };
         }
 

@@ -46,7 +46,7 @@ namespace CrappyRevitModelGenerator.Tests
 
         [Theory]
         [InlineData(0)]
-        [InlineData(7)]
+        [InlineData(GenerationLimits.MaxLevels + 1)]
         [InlineData(-1)]
         [InlineData(100)]
         public void LevelCountOutsideLimitsIsAnError(int levels)

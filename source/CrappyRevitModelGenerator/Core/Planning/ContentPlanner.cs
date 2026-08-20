@@ -43,7 +43,7 @@ namespace CrappyRevitModelGenerator.Core.Planning
             if (random == null) throw new ArgumentNullException(nameof(random));
 
             var plan = new ContentPlan();
-            var profile = SeverityProfile.For(settings.Severity);
+            var profile = SeverityProfile.For(settings);
 
             if (settings.CreateDoorsAndWindows)
             {

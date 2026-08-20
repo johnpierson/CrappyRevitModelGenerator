@@ -36,6 +36,14 @@ namespace CrappyRevitModelGenerator.UI
         /// <summary>Set once controls are populated; input events fire during population and must not refresh yet.</summary>
         private bool _ready;
 
+        /// <summary>
+        /// True once the user has typed in the max-elements box (or arrived with a non-default
+        /// value). Until then the dialog keeps that cap ahead of the estimate, so raising levels,
+        /// footprint or content scale does not immediately block the run on a safety number the
+        /// user never chose.
+        /// </summary>
+        private bool _maxElementsPinned;
+
         /// <summary>The settings to run with. Only meaningful when ShowDialog returned true.</summary>
         public GenerationSettings Result { get; private set; }
 
@@ -103,6 +111,11 @@ namespace CrappyRevitModelGenerator.UI
             FootprintWidthBox.Text = FormatMm(_initial.FootprintWidthMm);
             FootprintDepthBox.Text = FormatMm(_initial.FootprintDepthMm);
             LevelHeightBox.Text = FormatMm(_initial.LevelHeightMm);
+            ContentScaleBox.Text = _initial.ContentScale.ToString("0.###", CultureInfo.CurrentCulture);
+            ContentScaleHint.Text =
+                $"{GenerationLimits.MinContentScale:0.##}–{GenerationLimits.MaxContentScale:0.##}. " +
+                "Multiplies rooms, views, sheets, notes, types and materials without changing how bad they are. " +
+                "Rooms also need somewhere to go: add levels or footprint for more of them.";
             CreateFloorsBox.IsChecked = _initial.CreateFloors;
             DoorsWindowsBox.IsChecked = _initial.CreateDoorsAndWindows;
             FurnitureBox.IsChecked = _initial.CreateFurniture;
@@ -154,7 +167,9 @@ namespace CrappyRevitModelGenerator.UI
             // Safety
             MaxElementsBox.Text = Math.Min(Math.Max(_initial.MaxElements, GenerationLimits.MinMaxElements), GenerationLimits.HardMaxElements)
                 .ToString(CultureInfo.CurrentCulture);
-            MaxElementsHint.Text = $"Hard cap {GenerationLimits.HardMaxElements}. The run refuses to start when the estimate exceeds this.";
+            MaxElementsHint.Text = $"Hard cap {GenerationLimits.HardMaxElements}. The run refuses to start when the estimate exceeds this. " +
+                                   "Left alone it follows the estimate; type a value to hold it there.";
+            _maxElementsPinned = _initial.MaxElements != GenerationLimits.DefaultMaxElements;
 
             ConfirmBox.Content = new TextBlock
             {
@@ -194,6 +209,7 @@ namespace CrappyRevitModelGenerator.UI
             settings.FootprintWidthMm = ReadDouble(FootprintWidthBox, "Footprint width", errors, settings.FootprintWidthMm);
             settings.FootprintDepthMm = ReadDouble(FootprintDepthBox, "Footprint depth", errors, settings.FootprintDepthMm);
             settings.LevelHeightMm = ReadDouble(LevelHeightBox, "Level height", errors, settings.LevelHeightMm);
+            settings.ContentScale = ReadDouble(ContentScaleBox, "Content scale", errors, settings.ContentScale, unit: null);
             settings.CreateFloors = CreateFloorsBox.IsChecked == true;
             settings.CreateDoorsAndWindows = DoorsWindowsBox.IsChecked == true;
             settings.CreateFurniture = FurnitureBox.IsChecked == true;
@@ -231,7 +247,7 @@ namespace CrappyRevitModelGenerator.UI
             return fallback;
         }
 
-        private static double ReadDouble(TextBox box, string label, List<string> errors, double fallback)
+        private static double ReadDouble(TextBox box, string label, List<string> errors, double fallback, string unit = "millimetres")
         {
             var text = (box.Text ?? string.Empty).Trim();
             const NumberStyles styles = NumberStyles.Float | NumberStyles.AllowThousands;
@@ -243,8 +259,9 @@ namespace CrappyRevitModelGenerator.UI
                 return value;
             }
 
-            MarkInvalid(box, $"{label} must be a number (millimetres).");
-            errors.Add($"{label} must be a number (millimetres).");
+            var message = string.IsNullOrEmpty(unit) ? $"{label} must be a number." : $"{label} must be a number ({unit}).";
+            MarkInvalid(box, message);
+            errors.Add(message);
             return fallback;
         }
 
@@ -268,6 +285,13 @@ namespace CrappyRevitModelGenerator.UI
         // ---- Live estimate ---------------------------------------------------------------
 
         private void OnInputChanged(object sender, RoutedEventArgs e) => Refresh();
+
+        /// <summary>The user typed their own safety cap; stop following the estimate.</summary>
+        private void OnMaxElementsChanged(object sender, RoutedEventArgs e)
+        {
+            if (_ready) _maxElementsPinned = true;
+            Refresh();
+        }
 
         private void Refresh()
         {
@@ -320,6 +344,21 @@ namespace CrappyRevitModelGenerator.UI
                 }
             }
 
+            // Keep the safety cap ahead of the estimate while the user has not set it by hand.
+            // One re-entry only: the second pass sees the suggestion already in the box.
+            if (estimate != null && settings != null && !_maxElementsPinned)
+            {
+                var suggested = GenerationLimits.SuggestedMaxElements(estimate.Total);
+                if (suggested != settings.MaxElements)
+                {
+                    _ready = false;
+                    MaxElementsBox.Text = suggested.ToString(CultureInfo.CurrentCulture);
+                    _ready = true;
+                    Refresh();
+                    return;
+                }
+            }
+
             EstimateText.Text = estimate == null
                 ? "Estimate unavailable until every field is a number and the model settings are within their limits."
                 : $"≈ {estimate.Total} elements: {DescribeEstimate(estimate)}";
@@ -348,7 +387,8 @@ namespace CrappyRevitModelGenerator.UI
             s.LevelCount >= GenerationLimits.MinLevels && s.LevelCount <= GenerationLimits.MaxLevels &&
             s.FootprintWidthMm >= GenerationLimits.MinFootprintMm && s.FootprintWidthMm <= GenerationLimits.MaxFootprintMm &&
             s.FootprintDepthMm >= GenerationLimits.MinFootprintMm && s.FootprintDepthMm <= GenerationLimits.MaxFootprintMm &&
-            s.LevelHeightMm >= GenerationLimits.MinLevelHeightMm && s.LevelHeightMm <= GenerationLimits.MaxLevelHeightMm;
+            s.LevelHeightMm >= GenerationLimits.MinLevelHeightMm && s.LevelHeightMm <= GenerationLimits.MaxLevelHeightMm &&
+            s.ContentScale >= GenerationLimits.MinContentScale && s.ContentScale <= GenerationLimits.MaxContentScale;
 
         /// <summary>"Walls 30, Doors 12, …" in category (not alphabetical) order, skipping zeros.</summary>
         private static string DescribeEstimate(ElementCountEstimate estimate)

@@ -27,7 +27,7 @@ namespace CrappyRevitModelGenerator.Core.Planning
             var plan = new RoomPlan();
             if (!settings.CreateRooms) return plan;
 
-            var profile = SeverityProfile.For(settings.Severity);
+            var profile = SeverityProfile.For(settings);
             var rnd = random.Stream(StreamRooms);
             var tagRnd = random.Stream(StreamTags);
 

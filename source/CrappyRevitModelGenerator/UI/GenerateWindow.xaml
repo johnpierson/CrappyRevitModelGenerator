@@ -108,6 +108,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" x:Name="LevelsLabel" Text="Levels" Style="{StaticResource FieldLabel}"/>
@@ -119,6 +120,10 @@
                             <TextBox Grid.Row="1" Grid.Column="1" x:Name="FootprintWidthBox" TextChanged="OnInputChanged"/>
                             <TextBlock Grid.Row="1" Grid.Column="3" x:Name="FootprintDepthLabel" Text="Footprint depth (mm)" Style="{StaticResource FieldLabel}"/>
                             <TextBox Grid.Row="1" Grid.Column="4" x:Name="FootprintDepthBox" TextChanged="OnInputChanged"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" x:Name="ContentScaleLabel" Text="Content scale (×)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" x:Name="ContentScaleBox" TextChanged="OnInputChanged"/>
+                            <TextBlock Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="3" x:Name="ContentScaleHint" Style="{StaticResource Hint}" Margin="0,0,0,0"/>
                         </Grid>
                         <TextBlock x:Name="ContentLimitsHint" Foreground="Gray" TextWrapping="Wrap" Margin="0,4,0,2"/>
                         <WrapPanel Margin="0,4,0,0">
@@ -149,7 +154,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Max elements" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Grid.Column="1" x:Name="MaxElementsBox" TextChanged="OnInputChanged"/>
+                            <TextBox Grid.Column="1" x:Name="MaxElementsBox" TextChanged="OnMaxElementsChanged"/>
                             <TextBlock Grid.Column="2" x:Name="MaxElementsHint" Style="{StaticResource Hint}"/>
                         </Grid>
                         <CheckBox x:Name="ConfirmBox" Margin="0,8,0,2" Checked="OnInputChanged" Unchecked="OnInputChanged"/>

@@ -40,7 +40,7 @@ namespace CrappyRevitModelGenerator.Core
             var estimate = new ElementCountEstimate();
             var random = new SeededRandom(settings.Seed);
             var enabled = new HashSet<string>(settings.ResolveScenarioIds(), StringComparer.OrdinalIgnoreCase);
-            var profile = SeverityProfile.For(settings.Severity);
+            var profile = SeverityProfile.For(settings);
 
             var baseline = BaselinePlanner.Plan(settings, random, enabled.Contains(ScenarioIds.Datum));
             estimate.Add(GeneratedCategory.Levels, baseline.Levels.Count);

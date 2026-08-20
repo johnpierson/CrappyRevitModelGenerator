@@ -57,6 +57,15 @@ for the procedure that will change that.
 - **Docs**: `README.md`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `docs/INSTALL.md`,
   `docs/SCENARIOS.md`, `docs/INTEGRATION-TESTS.md`, `docs/MANUAL-QA.md`.
 
+- **Model size**: a **content scale** setting (0.5–20×, default 1×) multiplying the per-severity
+  content quantities — rooms, views, sheets, text notes, duplicate types and materials — without
+  touching defect counts or fractions, so size and badness are independent dials; the per-category
+  caps rise with it (levels 6 → 20, footprint 40 000 → 120 000 mm per side, walls 120 → 1 200,
+  rooms 24 → 400, views 40 → 400, sheets 10 → 100, materials and duplicate types 12 → 60, total
+  elements 1 500 → 25 000). The Generate dialog keeps *Maximum elements* ahead of the live
+  estimate until the user types a value of their own. Defaults are unchanged: a default run still
+  produces the same model it did before.
+
 ### Not in this release
 
 - Bundled `.rte` / `.rfa` fixtures (the generator discovers what the document has and reports

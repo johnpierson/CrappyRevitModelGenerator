@@ -205,6 +205,7 @@ Short checks of the pre-flight guard:
 | Workshared, opt-in off | Enable worksharing on a copy of `crmg-test.rvt` (Collaborate > Worksets), save as central, reopen | The dialog shows the workshared warning; running with *Allow workshared documents* unticked is blocked with "…'Allow workshared documents' is not enabled"; ticking it lets the run proceed into the active workset |
 | Unsaved changes | Draw a line, do not save, run | The dialog shows the unsaved-changes warning; the run is allowed |
 | Estimate over the maximum | Set *Maximum elements* to 20 | Validation error "The estimated element count (…) exceeds the maximum (20)…"; no transaction opens |
+| Large run | Set *Levels* 8, *Footprint* 60 000 × 30 000, *Content scale* 6, tick *Dry run* | The estimate climbs with each change and *Maximum elements* follows it (until you type your own value); the plan lists hundreds of rooms, views and sheets, and no per-category cap is exceeded. Untick *Dry run* to create it: one Undo step, and **Clean Generated** removes all of it |
 | Dry run | Tick *Dry run* | Report says `DRY RUN - nothing was created`, lists estimated counts and the defects that would be planted; no undo entry; the document's modified flag does not change |
 
 ## Where to look — summary
