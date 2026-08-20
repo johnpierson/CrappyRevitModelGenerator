@@ -63,6 +63,7 @@ namespace CrappyRevitModelGenerator.Tests
             Ascending(p => p.SeparationLines, nameof(low.SeparationLines));
             Ascending(p => p.UntaggedRoomFraction, nameof(low.UntaggedRoomFraction));
             Ascending(p => p.AwkwardTagFraction, nameof(low.AwkwardTagFraction));
+            Ascending(p => p.FakeRoomTagFraction, nameof(low.FakeRoomTagFraction));
             Ascending(p => p.DuplicatePlansPerLevel, nameof(low.DuplicatePlansPerLevel));
             Ascending(p => p.Sections, nameof(low.Sections));
             Ascending(p => p.Elevations, nameof(low.Elevations));
@@ -125,6 +126,7 @@ namespace CrappyRevitModelGenerator.Tests
                 Assert.InRange(p.DoorFlipProbability, 0, 1);
                 Assert.InRange(p.UntaggedRoomFraction, 0, 1);
                 Assert.InRange(p.AwkwardTagFraction, 0, 1);
+                Assert.InRange(p.FakeRoomTagFraction, 0, 1);
                 Assert.InRange(p.BlankMetadataFraction, 0, 1);
                 Assert.InRange(p.BadMetadataFraction, 0, 1);
                 Assert.InRange(p.DuplicateMarkFraction, 0, 1);

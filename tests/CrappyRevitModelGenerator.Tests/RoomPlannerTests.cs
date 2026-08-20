@@ -163,18 +163,21 @@ namespace CrappyRevitModelGenerator.Tests
                         Assert.True(Math.Abs(r.TagOffsetMm.X) > 0 || Math.Abs(r.TagOffsetMm.Y) > 0);
                     else
                         Assert.Equal(Point2D.Origin, r.TagOffsetMm);
+                    Assert.Equal(r.FakeTag, r.DefectTags.Contains("fake-tag"));
                 }
                 else
                 {
                     Assert.Contains("untagged", r.DefectTags);
+                    Assert.False(r.FakeTag);
                 }
 
                 if (cell.EnclosureBroken && !r.DefectTags.Contains("duplicate-in-region") && cell.Band != CellBand.Corridor)
                     Assert.Contains("in-broken-enclosure", r.DefectTags);
             }
 
-            Assert.Equal(rooms.Rooms.Count(r => r.IsPlaced && r.CreateTag), rooms.TagCount);
-            Assert.Equal(rooms.Rooms.Count + rooms.SeparationLines.Count + rooms.TagCount, rooms.ElementCount);
+            Assert.Equal(rooms.Rooms.Count(r => r.IsPlaced && r.CreateTag && !r.FakeTag), rooms.TagCount);
+            Assert.Equal(rooms.Rooms.Count(r => r.IsPlaced && r.CreateTag && r.FakeTag), rooms.FakeTagCount);
+            Assert.Equal(rooms.Rooms.Count + rooms.SeparationLines.Count + rooms.TagCount + rooms.FakeTagCount * RoomPlan.ElementsPerFakeTag, rooms.ElementCount);
         }
 
         [Fact]
@@ -187,10 +190,40 @@ namespace CrappyRevitModelGenerator.Tests
                 var placed = rooms.Rooms.Where(r => r.IsPlaced).ToList();
                 var untagged = placed.Count(r => !r.CreateTag);
                 var awkward = placed.Count(r => r.DefectTags.Contains("awkward-tag"));
+                var fake = placed.Count(r => r.FakeTag);
                 Assert.Equal((int)Math.Round(placed.Count * profile.UntaggedRoomFraction), untagged);
                 Assert.Equal((int)Math.Round((placed.Count - untagged) * profile.AwkwardTagFraction), awkward);
+                Assert.Equal((int)Math.Round((placed.Count - untagged) * profile.FakeRoomTagFraction), fake);
                 if (untagged > 0) Assert.Contains(rooms.Defects, d => d.Message.Contains("no room tag"));
                 if (awkward > 0) Assert.Contains(rooms.Defects, d => d.Message.Contains("awkwardly"));
+                if (fake > 0) Assert.Contains(rooms.Defects, d => d.Message.Contains("text note"));
+            }
+        }
+
+        [Fact]
+        public void FakeTagsAreASubsetOfTaggedRoomsAtEverySeverity()
+        {
+            foreach (var severity in TestSupport.AllSeverities)
+            foreach (var seed in Enumerable.Range(1, 6))
+            {
+                var (_, rooms) = Plan(TestSupport.Settings(seed, severity));
+                var fake = rooms.Rooms.Where(r => r.FakeTag).ToList();
+                Assert.All(fake, r => Assert.True(r.IsPlaced && r.CreateTag, r.ToString()));
+                Assert.Equal(fake.Count, rooms.FakeTagCount);
+                // A fake tag never counts as a real tag.
+                Assert.Equal(rooms.Rooms.Count(r => r.IsPlaced && r.CreateTag) - fake.Count, rooms.TagCount);
+            }
+        }
+
+        [Fact]
+        public void DefaultSettingsPlantFakeTagsAtEverySeverity()
+        {
+            foreach (var severity in TestSupport.AllSeverities)
+            {
+                var seen = false;
+                foreach (var seed in Enumerable.Range(1, 6))
+                    seen |= Plan(TestSupport.Settings(seed, severity)).rooms.Rooms.Any(r => r.FakeTag);
+                Assert.True(seen, $"no fake tags at {severity} across six seeds");
             }
         }
 

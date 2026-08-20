@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Autodesk.Revit.DB.Architecture;
 using CrappyRevitModelGenerator.Core;
+using CrappyRevitModelGenerator.Core.Geometry;
 using CrappyRevitModelGenerator.Core.Planning;
 using CrappyRevitModelGenerator.Revit;
 
@@ -11,7 +12,8 @@ namespace CrappyRevitModelGenerator.Scenarios
     /// <summary>
     /// Rooms, room separation lines and room tags (plan section 7.6, order 30). Every decision —
     /// which cells get rooms, which rooms stay unplaced, which cell gets a second room, where the
-    /// separation lines go, which tags are omitted or shoved against a wall — is made by
+    /// separation lines go, which tags are omitted, shoved against a wall or faked with a text
+    /// note and detail lines — is made by
     /// <see cref="RoomPlanner"/>; this class only turns the plan into elements and gathers the
     /// evidence Revit produces (rooms with zero area, dismissed warnings) into the report.
     ///
@@ -136,7 +138,10 @@ namespace CrappyRevitModelGenerator.Scenarios
 
             // ---- 3. Tags --------------------------------------------------------------------
             var taggedCount = 0;
+            var fakeTaggedCount = 0;
+            var fakeTagsSkippedNoTextType = 0;
             var awkwardTagIds = new List<long>();
+            var fakeTagIds = new List<long>();
             foreach (var spec in plan.Rooms.Where(r => r.IsPlaced && r.CreateTag))
             {
                 if (!context.RoomElements.TryGetValue(spec.Index, out var room) || room == null) continue;
@@ -150,6 +155,30 @@ namespace CrappyRevitModelGenerator.Scenarios
                 }
 
                 var tagPoint = spec.Location.Value.Plus(spec.TagOffsetMm);
+
+                if (spec.FakeTag)
+                {
+                    if (context.Types.TextNoteType == null)
+                    {
+                        fakeTagsSkippedNoTextType++;
+                        continue;
+                    }
+                    try
+                    {
+                        var ids = CreateFakeTag(context, planView, spec, tagPoint);
+                        if (ids.Count > 0)
+                        {
+                            fakeTaggedCount++;
+                            fakeTagIds.AddRange(ids);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        report.AddException(Id, $"fake-tag room {spec.Number} '{spec.Name}' at {tagPoint}", ex, rolledBack: false);
+                    }
+                    continue;
+                }
+
                 try
                 {
                     var tag = factory.CreateRoomTag(room, UnitConversion.ToUV(tagPoint), planView);
@@ -199,6 +228,13 @@ namespace CrappyRevitModelGenerator.Scenarios
             AddSummaryDefect(report, "Room tags pushed against a wall instead of the room centre", awkwardTagIds);
             AddSummaryDefect(report, "Room separation lines used where a wall would have been sufficient", wallWouldDoLineIds);
 
+            if (fakeTagIds.Count > 0)
+            {
+                report.AddDefect(Id,
+                    $"{fakeTaggedCount} room(s) are 'tagged' with a text note and detail lines instead of a real room tag; the text will not update when the room does.",
+                    fakeTagIds);
+            }
+
             if (zeroAreaIds.Count > 0)
             {
                 report.AddDefect(Id,
@@ -212,8 +248,14 @@ namespace CrappyRevitModelGenerator.Scenarios
                     $"No plan view exists for level index(es) {string.Join(", ", levelsWithoutPlanView)}; {linesSkippedNoView} room separation line(s) and {tagsSkippedNoView} room tag(s) there were skipped.");
             }
 
+            if (fakeTagsSkippedNoTextType > 0)
+            {
+                report.AddFallback(Id,
+                    $"The document has no text note type; {fakeTagsSkippedNoTextType} fake room tag(s) were skipped and those rooms are untagged.");
+            }
+
             report.AddInfo(Id,
-                $"Rooms: {placedCount} placed, {unplacedCount} unplaced, {taggedCount} tagged, {linesCreated} separation line(s), {zeroAreaIds.Count} placed room(s) with zero area. " +
+                $"Rooms: {placedCount} placed, {unplacedCount} unplaced, {taggedCount} tagged, {fakeTaggedCount} fake-tagged with a text note, {linesCreated} separation line(s), {zeroAreaIds.Count} placed room(s) with zero area. " +
                 "Duplicate room numbers and rooms sharing a region raise expected Revit warnings that are dismissed automatically and listed under expected warnings.");
         }
 
@@ -310,6 +352,48 @@ namespace CrappyRevitModelGenerator.Scenarios
             }
 
             return room;
+        }
+
+        /// <summary>
+        /// The fake tag from issue #1: one text note with the room's name over its number, boxed
+        /// by four detail lines so it reads as a room tag from across the office. The box is
+        /// sized by eye from the character count and the view scale, so it never quite fits the
+        /// text — faithful to how these get drawn. Returns the ids of whatever was created.
+        /// </summary>
+        private List<long> CreateFakeTag(GenerationContext context, ViewPlan planView, RoomSpec spec, Point2D tagPoint)
+        {
+            var factory = context.Factory;
+            var ids = new List<long>();
+
+            // Detail curves must lie in the view's plane; the view origin is on it by definition.
+            var zFeet = planView.Origin.Z;
+            var note = factory.CreateTextNote(planView, UnitConversion.ToXYZAtFeet(tagPoint, zFeet), $"{spec.Name}\n{spec.Number}");
+            if (note == null) return ids;
+            ids.Add(note.Id.Value);
+
+            var scale = Math.Max(1, planView.Scale);
+            var chars = Math.Max(spec.Name?.Length ?? 1, spec.Number?.Length ?? 1);
+            var halfWidthMm = Math.Max(300.0, (chars + 1) * scale);
+            var halfHeightMm = 4.5 * scale;
+            // The note's insertion point is its top-left corner, so the box trails right and down.
+            var centre = tagPoint.Offset(halfWidthMm * 0.9, -halfHeightMm * 0.9);
+
+            var corners = new[]
+            {
+                new Point2D(centre.X - halfWidthMm, centre.Y - halfHeightMm),
+                new Point2D(centre.X + halfWidthMm, centre.Y - halfHeightMm),
+                new Point2D(centre.X + halfWidthMm, centre.Y + halfHeightMm),
+                new Point2D(centre.X - halfWidthMm, centre.Y + halfHeightMm),
+            };
+            for (var i = 0; i < corners.Length; i++)
+            {
+                var line = Line.CreateBound(
+                    UnitConversion.ToXYZAtFeet(corners[i], zFeet),
+                    UnitConversion.ToXYZAtFeet(corners[(i + 1) % corners.Length], zFeet));
+                var curve = factory.CreateDetailLine(planView, line);
+                if (curve != null) ids.Add(curve.Id.Value);
+            }
+            return ids;
         }
 
         /// <summary>

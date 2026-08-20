@@ -247,6 +247,14 @@ namespace CrappyRevitModelGenerator.Revit
             return note;
         }
 
+        /// <summary>A view-specific detail line. The curve must lie in the view's plane.</summary>
+        public DetailCurve CreateDetailLine(View view, Line line)
+        {
+            var curve = Doc.Create.NewDetailCurve(view, line);
+            Register(curve, GeneratedCategory.Other);
+            return curve;
+        }
+
         // ---- Hosted and free instances ---------------------------------------------------
 
         public FamilyInstance PlaceHosted(FamilySymbol symbol, Wall host, Level level, XYZ location, GeneratedCategory category)

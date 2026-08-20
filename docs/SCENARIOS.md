@@ -165,7 +165,7 @@ skipped.
 | Order | 30 |
 | Relies on | baseline walls (and openings, if any, already exist). Fills `RoomElements`, `RoomTags`, `SeparationLines`; sets `context.Rooms` |
 | Planner | `RoomPlanner` — streams `rooms/rooms`, `rooms/tags`, `rooms/separation` |
-| Needs from the document | a phase (for unplaced rooms); plan views from the baseline (for tags and separation lines) |
+| Needs from the document | a phase (for unplaced rooms); plan views from the baseline (for tags and separation lines); a text note type for fake tags (missing → those rooms stay untagged, reported as a fallback) |
 | Settings | `CreateRooms` |
 
 **Defects (planner, exact).**
@@ -186,6 +186,11 @@ skipped.
 - Tags: `UntaggedRoomFraction` of placed rooms get no tag; `AwkwardTagFraction` of the tagged
   ones get their tag pushed to within 150 mm of a wall — *tags omitted from some rooms and placed
   awkwardly in others*.
+- Fake tags: `FakeRoomTagFraction` of the tagged rooms get a plain text note (room name over
+  number) boxed by four detail lines instead of a real room tag — *the tag reads correctly today
+  and goes stale the moment the room changes* (issue #1). A fake tag can also carry an awkward
+  offset. The box is sized by eye from the character count and view scale, so it never quite
+  fits the text; the note and its lines are ordinary annotations, so nothing is corrupted.
 - Separation lines: one across the corridor (legitimate), then `SeparationLines − 1` splitting a
   cell in half — *room separation lines used where walls would have been sufficient*.
 
@@ -195,7 +200,8 @@ silent skip; a `Regenerate` precedes tagging a just-created room.
 
 **Severity.** `RoomsMin–Max` 4–6 / 6–8 / 8–10; `UnplacedRooms` 1 / 1 / 2; `DuplicateRoomsInCell`
 0 / 1 / 2; `SeparationLines` 1 / 2 / 3; `UntaggedRoomFraction` 0.2 / 0.25 / 0.35;
-`AwkwardTagFraction` 0.2 / 0.3 / 0.4; `RoomInCorridor` no / yes / yes.
+`AwkwardTagFraction` 0.2 / 0.3 / 0.4; `FakeRoomTagFraction` 0.15 / 0.25 / 0.35; `RoomInCorridor`
+no / yes / yes.
 
 **Expected warnings** (all dismissed and recorded): *Room is not in a properly enclosed region*
 (`RoomNotEnclosed`, from corner gaps or a stub wall); *Multiple Rooms are in the same enclosed
@@ -210,6 +216,7 @@ naming is on; *A wall and a room separation line overlap* / *room separation lin
 `[rooms] Room TBD 'Not Sure' exists but is not placed (shows in schedules as 'Not Placed').`
 `[rooms] 2 placed room(s) have no room tag.`
 `[rooms] 2 room tag(s) are placed awkwardly against a wall instead of at the room centre.`
+`[rooms] 2 room(s) are 'tagged' with a text note and detail lines instead of a real room tag; the text will not update when the room does.  ids: …`
 `[rooms] A room separation line splits the cell at (-6750, -3900) on level 1 where a wall would have been sufficient.`
 
 ---
@@ -508,7 +515,7 @@ matching entries under **Expected warnings (dismissed)** with the definition GUI
 |---|---|---|---|---|---|---|
 | 10 | `baseline` | Baseline model | Low | on (required) | `BaselinePlanner` | `CellWidthMm`, `CorridorWidth*` |
 | 20 | `content-placement` | Doors, windows and furniture | Medium | on | `ContentPlanner` | `WindowSpacingMm`, `WindowPairsTooClose`, `DoorsNearWallEnd`, `SillHeightVarieties`, `DoorFlipProbability`, `Furniture*` |
-| 30 | `rooms` | Rooms and spatial data | Medium | on | `RoomPlanner` | `RoomsMin/Max`, `UnplacedRooms`, `DuplicateRoomsInCell`, `SeparationLines`, `UntaggedRoomFraction`, `AwkwardTagFraction`, `RoomInCorridor` |
+| 30 | `rooms` | Rooms and spatial data | Medium | on | `RoomPlanner` | `RoomsMin/Max`, `UnplacedRooms`, `DuplicateRoomsInCell`, `SeparationLines`, `UntaggedRoomFraction`, `AwkwardTagFraction`, `FakeRoomTagFraction`, `RoomInCorridor` |
 | 40 | `documentation` | Views and sheets | Low | on | — | `DuplicatePlansPerLevel`, `Sections`, `Elevations`, `ThreeDViews`, `DraftingViews`, `Sheets`, `EmptySheets`, `TextNotes`, `WrongDisciplineFraction`, `OddScaleFraction`, `OddCropFraction` |
 | 50 | `datum` | Datum and layout tweaks | Low | on | `BaselinePlanner` (planted) | `LevelJitterMm`, `LevelOops*`, `IntermediateLevel`, `*WallsPerLevel`, `*PerLevel`, `ExteriorOverrun`, `Floor*`, `Grid*`, `OneEndBubbleGrids`, `MisalignedGrids`, `NearCoincidentGrid` |
 | 60 | `naming` | Poor naming | Low | on | — (`RoomPlanner` reads the flag) | none |

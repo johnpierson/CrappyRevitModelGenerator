@@ -85,7 +85,7 @@ namespace CrappyRevitModelGenerator.Tests
         {
             var sb = new StringBuilder();
             foreach (var r in plan.Rooms)
-                sb.AppendLine($"room {r.Index} L{r.LevelIndex} C{r.CellIndex} loc={(r.Location.HasValue ? P(r.Location.Value) : "null")} '{r.Name}' '{r.Number}' tag={r.CreateTag} off={P(r.TagOffsetMm)} {Tags(r.DefectTags)}");
+                sb.AppendLine($"room {r.Index} L{r.LevelIndex} C{r.CellIndex} loc={(r.Location.HasValue ? P(r.Location.Value) : "null")} '{r.Name}' '{r.Number}' tag={r.CreateTag} fake={r.FakeTag} off={P(r.TagOffsetMm)} {Tags(r.DefectTags)}");
             foreach (var s in plan.SeparationLines)
                 sb.AppendLine($"sep {s.Index} L{s.LevelIndex} {S(s.Line)} {Tags(s.DefectTags)}");
             foreach (var d in plan.Defects)

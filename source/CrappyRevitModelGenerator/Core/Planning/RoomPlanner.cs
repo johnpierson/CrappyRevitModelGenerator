@@ -8,7 +8,7 @@ namespace CrappyRevitModelGenerator.Core.Planning
 {
     /// <summary>
     /// Decides which cells get rooms, which rooms stay unplaced, where room separation lines go
-    /// and which rooms get (awkward) tags — plan section 7.6. Names and numbers come from
+    /// and which rooms get (awkward, or faked with a text note) tags — plan section 7.6. Names and numbers come from
     /// <see cref="BadNames"/> when the naming scenario is on, otherwise from a clean sequence,
     /// so the rooms scenario can run with or without the naming scenario.
     /// </summary>
@@ -137,6 +137,19 @@ namespace CrappyRevitModelGenerator.Core.Planning
             }
             if (awkward.Count > 0)
                 plan.Defects.Add(new PlannedDefect(ScenarioIds.Rooms, $"{awkward.Count} room tag(s) are placed awkwardly against a wall instead of at the room centre."));
+
+            // Fake tags: a text note plus detail lines drawn to look like a room tag. The text
+            // matches the room today and goes stale the moment the room changes. A fake tag can
+            // also carry an awkward offset — both habits at once.
+            var fake = tagRnd.TakeDistinct(tagged, (int)Math.Round(tagged.Count * profile.FakeRoomTagFraction));
+            foreach (var r in fake)
+            {
+                r.FakeTag = true;
+                r.DefectTags.Add("fake-tag");
+            }
+            if (fake.Count > 0)
+                plan.Defects.Add(new PlannedDefect(ScenarioIds.Rooms,
+                    $"{fake.Count} room(s) are 'tagged' with a plain text note and detail lines drawn to look like a room tag; the text will not update when the room does."));
 
             PlanSeparationLines(baseline, plan, random.Stream(StreamSeparation), profile);
 

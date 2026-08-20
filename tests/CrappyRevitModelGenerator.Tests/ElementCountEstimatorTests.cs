@@ -101,6 +101,9 @@ namespace CrappyRevitModelGenerator.Tests
             Assert.True(rooms.Of(GeneratedCategory.Rooms) > 0);
             Assert.True(rooms.Of(GeneratedCategory.RoomTags) > 0);
             Assert.True(rooms.Of(GeneratedCategory.RoomSeparationLines) > 0);
+            // Fake room tags: one text note and four detail lines (Other) each.
+            Assert.True(rooms.Of(GeneratedCategory.TextNotes) > 0);
+            Assert.Equal(rooms.Of(GeneratedCategory.TextNotes) * (RoomPlan.ElementsPerFakeTag - 1), rooms.Of(GeneratedCategory.Other));
 
             var docs = ElementCountEstimator.Estimate(With(ScenarioIds.Documentation));
             Assert.True(docs.Of(GeneratedCategory.Views) > 0);

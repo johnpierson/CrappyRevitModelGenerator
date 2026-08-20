@@ -66,6 +66,13 @@ for the procedure that will change that.
   estimate until the user types a value of their own. Defaults are unchanged: a default run still
   produces the same model it did before.
 
+- **Fake room tags** ([#1](https://github.com/johnpierson/CrappyRevitModelGenerator/issues/1)):
+  the `rooms` scenario now "tags" a fraction of the tagged rooms with a plain text note (name
+  over number) boxed by four detail lines instead of a real room tag — `FakeRoomTagFraction`
+  0.15 / 0.25 / 0.35 by severity. The text matches the room at creation and goes stale the
+  moment the room changes; the note and lines are ordinary annotations registered to the run,
+  so cleanup removes them and nothing is corrupted.
+
 ### Not in this release
 
 - Bundled `.rte` / `.rfa` fixtures (the generator discovers what the document has and reports

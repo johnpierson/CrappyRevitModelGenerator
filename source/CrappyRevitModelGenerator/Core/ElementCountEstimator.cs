@@ -62,6 +62,9 @@ namespace CrappyRevitModelGenerator.Core
                 estimate.Add(GeneratedCategory.Rooms, rooms.Rooms.Count);
                 estimate.Add(GeneratedCategory.RoomTags, rooms.TagCount);
                 estimate.Add(GeneratedCategory.RoomSeparationLines, rooms.SeparationLines.Count);
+                // A fake tag is one text note and four detail lines (registered as Other).
+                estimate.Add(GeneratedCategory.TextNotes, rooms.FakeTagCount);
+                estimate.Add(GeneratedCategory.Other, rooms.FakeTagCount * (RoomPlan.ElementsPerFakeTag - 1));
             }
 
             if (enabled.Contains(ScenarioIds.Documentation))

@@ -196,6 +196,12 @@ namespace CrappyRevitModelGenerator.Core.Planning
         public string Number { get; set; }
         public bool CreateTag { get; set; } = true;
 
+        /// <summary>
+        /// The "tag" is a text note plus detail lines drawn to look like one, not a real room
+        /// tag. Only meaningful when <see cref="CreateTag"/> is true.
+        /// </summary>
+        public bool FakeTag { get; set; }
+
         /// <summary>Tag position relative to the room location; awkward offsets are a planted defect.</summary>
         public Point2D TagOffsetMm { get; set; }
 
@@ -220,13 +226,28 @@ namespace CrappyRevitModelGenerator.Core.Planning
         public List<SeparationLineSpec> SeparationLines { get; } = new List<SeparationLineSpec>();
         public List<PlannedDefect> Defects { get; } = new List<PlannedDefect>();
 
-        public int ElementCount => Rooms.Count + SeparationLines.Count + TagCount;
+        /// <summary>Elements one fake tag creates: a text note and the four detail lines of its box.</summary>
+        public const int ElementsPerFakeTag = 5;
+
+        public int ElementCount => Rooms.Count + SeparationLines.Count + TagCount + FakeTagCount * ElementsPerFakeTag;
+
+        /// <summary>Real room tags only; fake tags are counted by <see cref="FakeTagCount"/>.</summary>
         public int TagCount
         {
             get
             {
                 var n = 0;
-                foreach (var r in Rooms) if (r.IsPlaced && r.CreateTag) n++;
+                foreach (var r in Rooms) if (r.IsPlaced && r.CreateTag && !r.FakeTag) n++;
+                return n;
+            }
+        }
+
+        public int FakeTagCount
+        {
+            get
+            {
+                var n = 0;
+                foreach (var r in Rooms) if (r.IsPlaced && r.CreateTag && r.FakeTag) n++;
                 return n;
             }
         }

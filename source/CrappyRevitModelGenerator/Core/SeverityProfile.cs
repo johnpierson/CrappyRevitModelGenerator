@@ -80,6 +80,14 @@ namespace CrappyRevitModelGenerator.Core
         public int SeparationLines { get; private set; }
         public double UntaggedRoomFraction { get; private set; }
         public double AwkwardTagFraction { get; private set; }
+
+        /// <summary>
+        /// Fraction of tagged rooms whose "tag" is a text note plus detail lines drawn to look
+        /// like one, instead of a real room tag (issue #1: the text goes stale the moment the
+        /// room changes).
+        /// </summary>
+        public double FakeRoomTagFraction { get; private set; }
+
         public bool RoomInCorridor { get; private set; }
 
         // ---- Documentation ----------------------------------------------------------------
@@ -123,7 +131,7 @@ namespace CrappyRevitModelGenerator.Core
             WindowSpacingMm = 5200, WindowPairsTooClose = 0, DoorsNearWallEnd = 1, SillHeightVarieties = 2, DoorFlipProbability = 0.2,
             FurniturePerCellMax = 1, FurnitureOutsideFootprint = 0, FurnitureRotatedOddly = 1, FurnitureOnWall = 0,
             RoomsMin = 4, RoomsMax = 6, UnplacedRooms = 1, DuplicateRoomsInCell = 0, SeparationLines = 1,
-            UntaggedRoomFraction = 0.2, AwkwardTagFraction = 0.2, RoomInCorridor = false,
+            UntaggedRoomFraction = 0.2, AwkwardTagFraction = 0.2, FakeRoomTagFraction = 0.15, RoomInCorridor = false,
             DuplicatePlansPerLevel = 1, Sections = 1, Elevations = 1, ThreeDViews = 1, DraftingViews = 1,
             Sheets = 2, EmptySheets = 0, TextNotes = 3, WrongDisciplineFraction = 0.15, OddScaleFraction = 0.25, OddCropFraction = 0.25,
             DuplicateWallTypes = 1, DuplicateFloorTypes = 0, DuplicateFamilyTypes = 1, Materials = 3, NearDuplicateMaterials = 1,
@@ -144,7 +152,7 @@ namespace CrappyRevitModelGenerator.Core
             WindowSpacingMm = 4600, WindowPairsTooClose = 1, DoorsNearWallEnd = 2, SillHeightVarieties = 3, DoorFlipProbability = 0.35,
             FurniturePerCellMax = 2, FurnitureOutsideFootprint = 1, FurnitureRotatedOddly = 1, FurnitureOnWall = 1,
             RoomsMin = 6, RoomsMax = 8, UnplacedRooms = 1, DuplicateRoomsInCell = 1, SeparationLines = 2,
-            UntaggedRoomFraction = 0.25, AwkwardTagFraction = 0.3, RoomInCorridor = true,
+            UntaggedRoomFraction = 0.25, AwkwardTagFraction = 0.3, FakeRoomTagFraction = 0.25, RoomInCorridor = true,
             DuplicatePlansPerLevel = 1, Sections = 2, Elevations = 2, ThreeDViews = 2, DraftingViews = 1,
             Sheets = 3, EmptySheets = 1, TextNotes = 5, WrongDisciplineFraction = 0.25, OddScaleFraction = 0.35, OddCropFraction = 0.35,
             DuplicateWallTypes = 2, DuplicateFloorTypes = 1, DuplicateFamilyTypes = 2, Materials = 5, NearDuplicateMaterials = 2,
@@ -165,7 +173,7 @@ namespace CrappyRevitModelGenerator.Core
             WindowSpacingMm = 3800, WindowPairsTooClose = 2, DoorsNearWallEnd = 3, SillHeightVarieties = 5, DoorFlipProbability = 0.5,
             FurniturePerCellMax = 3, FurnitureOutsideFootprint = 2, FurnitureRotatedOddly = 2, FurnitureOnWall = 2,
             RoomsMin = 8, RoomsMax = 10, UnplacedRooms = 2, DuplicateRoomsInCell = 2, SeparationLines = 3,
-            UntaggedRoomFraction = 0.35, AwkwardTagFraction = 0.4, RoomInCorridor = true,
+            UntaggedRoomFraction = 0.35, AwkwardTagFraction = 0.4, FakeRoomTagFraction = 0.35, RoomInCorridor = true,
             DuplicatePlansPerLevel = 2, Sections = 3, Elevations = 3, ThreeDViews = 3, DraftingViews = 2,
             Sheets = 4, EmptySheets = 1, TextNotes = 8, WrongDisciplineFraction = 0.35, OddScaleFraction = 0.5, OddCropFraction = 0.5,
             DuplicateWallTypes = 3, DuplicateFloorTypes = 2, DuplicateFamilyTypes = 3, Materials = 7, NearDuplicateMaterials = 3,
